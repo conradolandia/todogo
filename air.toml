@@ -9,4 +9,4 @@ build_dir = "build"
     exclude = ["tmp/*", "client/*"]
     log = "build.log"
     include = ["**/*.go"]
-    ignore = ["tmp/*"]
+    ignore = ["tmp/*", "client/*"]

@@ -1,0 +1,10 @@
+#root {
+  --padding: 2rem;
+  --max-width: 1280px;
+
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--padding);
+  text-align: center;
+}
+

@@ -49,7 +49,7 @@ func main() {
 	client, err := mongo.Connect(context.Background(), clientOptions)
 
 	if err != nil {
-		log.Fatal("Error connecting to MongoDB:", err)
+		log.Fatal("❌ Error connecting to MongoDB:", err)
 	}
 
 	defer client.Disconnect(context.Background())
@@ -57,7 +57,7 @@ func main() {
 	err = client.Ping(context.Background(), nil)
 
 	if err != nil {
-		log.Fatal("Error pinging MongoDB:", err)
+		log.Fatal("❌ Error pinging MongoDB:", err)
 	}
 
 	fmt.Println("🍃 Connected to MongoDB Atlas")
@@ -107,22 +107,22 @@ func createTodo(c *fiber.Ctx) error {
 	todo := new(Todo)
 
 	if err := c.BodyParser(todo); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"❌ Error": err.Error()})
 	}
 
 	if todo.Body == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Body is required"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"❌ Error": "Body is required"})
 	}
 
 	insertResult, err := collection.InsertOne(context.Background(), todo)
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"❌ Error": err.Error()})
 	}
 
 	todo.ID = insertResult.InsertedID.(primitive.ObjectID)
 
-	return c.Status(fiber.StatusCreated).JSON(todo)
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"created": todo})
 }
 
 // Update a todo
@@ -131,24 +131,23 @@ func updateTodo(c *fiber.Ctx) error {
 	objectID, err := primitive.ObjectIDFromHex(id)
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid ID"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"❌ Error": "Invalid ID"})
 	}
 
 	filter := bson.M{"_id": objectID}
 	update := bson.M{"$set": bson.M{"completed": true}}
 
-	result, err := collection.UpdateOne(context.Background(), filter, update)
+	todo, err := collection.UpdateOne(context.Background(), filter, update)
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"❌ Error": err.Error()})
 	}
 
-	if result.ModifiedCount == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Todo not found"})
+	if todo.ModifiedCount == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"❌ Error": "Todo not found"})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Todo updated"})
-
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"updated": todo})
 }
 
 // Delete a todo
@@ -157,20 +156,20 @@ func deleteTodo(c *fiber.Ctx) error {
 	objectID, err := primitive.ObjectIDFromHex(id)
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid ID"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"❌ Error": "Invalid ID"})
 	}
 
 	filter := bson.M{"_id": objectID}
 
-	result, err := collection.DeleteOne(context.Background(), filter)
+	todo, err := collection.DeleteOne(context.Background(), filter)
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"❌ Error": err.Error()})
 	}
 
-	if result.DeletedCount == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Todo not found"})
+	if todo.DeletedCount == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"❌ Error": "Todo not found"})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Todo deleted"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"deleted": todo})
 }
