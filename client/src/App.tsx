@@ -1,6 +1,7 @@
 import './App.css'
 import { Container, Stack } from '@chakra-ui/react'
 import Navbar from './components/Navbar'
+import TodoForm from './components/TodoForm'
 
 const height = `calc(100vh - var(--padding) * 2)`
 
@@ -9,8 +10,8 @@ function App() {
     <Stack direction="column" gap={4} align="center" justify="center" h={height}>
       <Navbar />
       <Container maxW="container.xl">
-        {/* <TodoForm />
-        <TodoList /> */}
+        <TodoForm />
+        {/* <TodoList /> */}
       </Container>
     </Stack>
   )

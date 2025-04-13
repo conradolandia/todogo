@@ -1,5 +1,5 @@
 import { Box, Container, Flex, Text } from "@chakra-ui/react";
-import { ColorModeButton, useColorModeValue } from "@/components/ui/color-mode"
+import { ColorModeButton, useColorModeValue } from "@/components/ui/color-mode";
 
 export default function Navbar() {
   const bg = useColorModeValue("gray.900", "gray.50");
@@ -15,7 +15,7 @@ export default function Navbar() {
           {/* Right side */}
           <Flex justify="space-between" align="center" p={4} gap={8}>
             <DateDisplay />
-            <ColorModeButton bg={bg} color={color}/>
+            <ColorModeButton bg={bg} color={color} />
           </Flex>
         </Flex>
       </Box>
@@ -26,7 +26,7 @@ export default function Navbar() {
 function DateDisplay() {
   const date: Date = new Date();
   const day: number = date.getDate();
-  const month: number = date.getMonth() + 1; 
+  const month: number = date.getMonth() + 1;
   const year: number = date.getFullYear();
   const color = useColorModeValue("gray.50", "gray.900");
   return (
