@@ -1,42 +1,37 @@
-import { Flex, Spinner, Stack, Text } from "@chakra-ui/react";
-import { useState } from "react";
+import { Box, Flex, Spinner, Stack, Text } from "@chakra-ui/react";
+import { useQuery } from "@tanstack/react-query";
 import TodoItem from "./TodoItem";
+import { FaCheckCircle } from "react-icons/fa";
+
+export type Todo = {
+  _id: number;
+  body: string;
+  completed: boolean;
+};
 
 const TodoList = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const todos = [
-    {
-      _id: 1,
-      body: "Buy groceries",
-      completed: true,
+  const { data: todos, isLoading } = useQuery<Todo[], Error>({
+    queryKey: ["todos"],
+    queryFn: async () => {
+      try {
+        const response = await fetch("http://localhost:4000/api/todos");
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch todos (${response.statusText}): ${data.error}`
+          );
+        }
+
+        return data || [];
+      } catch (error) {
+        throw new Error(error as string);
+      }
     },
-    {
-      _id: 2,
-      body: "Walk the dog",
-      completed: false,
-    },
-    {
-      _id: 3,
-      body: "Do laundry",
-      completed: false,
-    },
-    {
-      _id: 4,
-      body: "Cook dinner",
-      completed: true,
-    },
-  ];
+  });
+
   return (
-    <>
-      <Text
-        fontSize={"4xl"}
-        textTransform={"uppercase"}
-        fontWeight={"bold"}
-        textAlign={"center"}
-        my={2}
-      >
-        Today's Tasks
-      </Text>
+    <Box py={4}>
       {isLoading && (
         <Flex justifyContent={"center"} my={4}>
           <Spinner size={"xl"} />
@@ -45,9 +40,9 @@ const TodoList = () => {
       {!isLoading && todos?.length === 0 && (
         <Stack alignItems={"center"} gap="3">
           <Text fontSize={"xl"} textAlign={"center"} color={"gray.500"}>
-            All tasks completed! 🤞
+            ¡Todas las tareas completadas! 🤞
           </Text>
-          <img src="/go.png" alt="Go logo" width={70} height={70} />
+          <FaCheckCircle size={70} color={"green.500"} />
         </Stack>
       )}
       <Stack gap={3}>
@@ -55,7 +50,8 @@ const TodoList = () => {
           <TodoItem key={todo._id} todo={todo} />
         ))}
       </Stack>
-    </>
+    </Box>
   );
 };
+
 export default TodoList;

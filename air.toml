@@ -6,7 +6,7 @@ build_dir = "build"
 [build]
     bin = "tmp/main"
     cmd = "go build -o {{.Output}} {{.Input}}"
-    exclude = ["tmp/*", "client/*"]
+    exclude = ["tmp/*", "client/*", "client/node_modules/*"]
     log = "build.log"
     include = ["**/*.go"]
-    ignore = ["tmp/*", "client/*"]
+    ignore = ["tmp/*", "client/*", "client/node_modules/*"]

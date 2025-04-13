@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -38,9 +39,11 @@ func loadEnv() {
 // Main function
 func main() {
 	// Start server
-	fmt.Println("Starting server...")
+	fmt.Println("⏳ Starting server...")
 
-	loadEnv()
+	if os.Getenv("ENV") != "production" {
+		loadEnv()
+	}
 
 	// Connect to MongoDB
 	MONGODB_URI := os.Getenv("MONGODB_URI")
@@ -67,6 +70,13 @@ func main() {
 	// Create Fiber app
 	app := fiber.New()
 
+	if os.Getenv("ENV") != "production" {
+		app.Use(cors.New(cors.Config{
+			AllowOrigins: "http://localhost:5173",
+			AllowHeaders: "Origin, Content-Type, Accept",
+		}))
+	}
+
 	// Routes
 	app.Get("/api/todos", getTodos)
 	app.Post("/api/todos", createTodo)
@@ -78,11 +88,19 @@ func main() {
 	if PORT == "" {
 		PORT = "4000"
 	}
+
+	if os.Getenv("ENV") == "production" {
+		app.Static("/", "./client/dist")
+	}
+
 	log.Fatal(app.Listen(":" + PORT))
 }
 
 // Get all todos
 func getTodos(c *fiber.Ctx) error {
+	// Reset todos slice to prevent duplicates
+	todos = []Todo{}
+
 	cursor, err := collection.Find(context.Background(), bson.M{})
 
 	if err != nil {
@@ -135,7 +153,16 @@ func updateTodo(c *fiber.Ctx) error {
 	}
 
 	filter := bson.M{"_id": objectID}
-	update := bson.M{"$set": bson.M{"completed": true}}
+
+	// Get current todo to check completed status
+	var currentTodo Todo
+	err = collection.FindOne(context.Background(), filter).Decode(&currentTodo)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"❌ Error": err.Error()})
+	}
+
+	// Toggle completed status
+	update := bson.M{"$set": bson.M{"completed": !currentTodo.Completed}}
 
 	todo, err := collection.UpdateOne(context.Background(), filter, update)
 

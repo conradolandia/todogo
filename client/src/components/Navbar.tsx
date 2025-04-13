@@ -2,8 +2,8 @@ import { Box, Container, Flex, Text } from "@chakra-ui/react";
 import { ColorModeButton, useColorModeValue } from "@/components/ui/color-mode";
 
 export default function Navbar() {
-  const bg = useColorModeValue("gray.900", "gray.50");
-  const color = useColorModeValue("gray.50", "gray.900");
+  const color = useColorModeValue("gray.900", "gray.50");
+  const bg = useColorModeValue("gray.50", "gray.900");
   return (
     <Container maxW="container.xl">
       <Box bg={bg} px={4} py={2} borderRadius="lg" w="100%">
@@ -28,7 +28,7 @@ function DateDisplay() {
   const day: number = date.getDate();
   const month: number = date.getMonth() + 1;
   const year: number = date.getFullYear();
-  const color = useColorModeValue("gray.50", "gray.900");
+  const color = useColorModeValue("gray.900", "gray.50");
   return (
     <Text fontSize="2xl" fontWeight="light" color={color}>
       {year}/{month}/{day}
